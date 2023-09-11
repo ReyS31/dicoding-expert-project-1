@@ -1,16 +1,16 @@
-const AddComment = require("../AddComment");
+const DeleteComment = require("../DeleteComment");
 
-describe("a AddComment entities", () => {
+describe("a DeleteComment entities", () => {
   it("should throw error when payload did not contain needed property", () => {
     // Arrange
     const payload = {
       threadId: "thread-123",
-      content: "wleowleo",
+      commentId: "comment-123",
     };
 
     // Action and Assert
-    expect(() => new AddComment(payload)).toThrowError(
-      "ADD_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY"
+    expect(() => new DeleteComment(payload)).toThrowError(
+      "DELETE_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY"
     );
   });
 
@@ -18,26 +18,26 @@ describe("a AddComment entities", () => {
     // Arrange
     const payload = {
       threadId: [],
-      content: true,
+      commentId: true,
       owner: 123,
     };
 
     // Action and Assert
-    expect(() => new AddComment(payload)).toThrowError(
-      "ADD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION"
+    expect(() => new DeleteComment(payload)).toThrowError(
+      "DELETE_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION"
     );
   });
 
-  it("should create AddComment object correctly", () => {
+  it("should create DeleteComment object correctly", () => {
     // Arrange
     const payload = {
       threadId: "thread-123",
-      content: "dicoding",
+      commentId: "comment-123",
       owner: "user-123",
     };
 
     // Action
-    const { threadId, content, owner } = new AddComment(payload);
+    const { threadId, content, owner } = new DeleteComment(payload);
 
     // Assert
     expect(threadId).toEqual(payload.threadId);

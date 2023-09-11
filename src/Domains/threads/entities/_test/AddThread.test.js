@@ -5,6 +5,7 @@ describe("a AddThread entities", () => {
     // Arrange
     const payload = {
       title: "abc",
+      body: "cde",
     };
 
     // Action and Assert
