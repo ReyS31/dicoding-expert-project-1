@@ -3,6 +3,8 @@ const InvariantError = require("../../Commons/exceptions/InvariantError");
 const CommentRepository = require("../../Domains/comments/CommentRepository");
 const AddedComment = require("../../Domains/comments/entities/AddedComment");
 const AddedReply = require("../../Domains/comments/entities/AddedReply");
+const Comment = require("../../Domains/comments/entities/Comment");
+const Reply = require("../../Domains/comments/entities/Reply");
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -45,7 +47,32 @@ class CommentRepositoryPostgres extends CommentRepository {
     return new AddedReply({ ...result.rows[0] });
   }
 
-  async getByThreadId(threadId) {}
+  async getByThreadId(threadId) {
+    const query = {
+      text: `SELECT cmt.id, cmt.comment_id, cmt.content, cmt.date, usr.username, cmt.is_delete 
+      FROM comments as cmt JOIN users as usr ON cmt.owner = usr.id 
+      WHERE cmt.thread_id = $1`,
+      values: [threadId],
+    };
+
+    const result = await this._pool.query(query);
+    const data = [];
+    for (let index = 0; index < result.rows.length; index++) {
+      const element = result.rows[index];
+      if (element.comment_id !== null) {
+        const commentIndex = data.findIndex((c) => c.id === element.comment_id);
+        if (data[commentIndex].replies === undefined) {
+          data[commentIndex].replies = [new Reply(element)];
+          continue;
+        }
+        data[commentIndex].replies.push(new Reply(element));
+        continue;
+      }
+      data.push(new Comment(element));
+    }
+
+    return data;
+  }
 
   async deleteComment(deleteComment) {
     const { commentId, threadId, owner } = deleteComment;

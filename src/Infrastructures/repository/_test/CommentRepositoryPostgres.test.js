@@ -11,6 +11,7 @@ const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const pool = require("../../database/postgres/pool");
 const CommentRepositoryPostgres = require("../CommentRepositoryPostgres");
 const AuthorizationError = require("../../../Commons/exceptions/AuthorizationError");
+const { nanoid } = require("nanoid");
 
 describe("CommentRepository postgres", () => {
   beforeAll(async () => {
@@ -128,8 +129,9 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action
       await commentRepository.addComment(addComment);
+
+      // Action
       await commentRepository.addReply(addReply);
 
       // Assert
@@ -156,7 +158,7 @@ describe("CommentRepository postgres", () => {
       });
       const addReply = new AddReply({
         threadId: payload.threadId,
-        commentId:payload.commentId,
+        commentId: payload.commentId,
         content: payload.content,
         owner: payload.owner,
       });
@@ -166,8 +168,9 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action
       await commentRepository.addComment(addComment);
+
+      // Action
       const addedReply = await commentRepository.addReply(addReply);
 
       // Assert
@@ -226,13 +229,15 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action & Assert
       await UsersTableTestHelper.addUser(forbiddenUser);
       await commentRepository.addComment(addComment);
 
+      // Action & Assert
       await expect(
         commentRepository.deleteComment(deleteComment)
       ).rejects.toThrow(AuthorizationError);
+
+      // Clean up
       await UsersTableTestHelper.deleteUser(forbiddenUser.id);
     });
 
@@ -261,8 +266,9 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action
       await commentRepository.addComment(addComment);
+
+      // Action
       await commentRepository.deleteComment(deleteComment);
 
       // Assert
@@ -323,8 +329,9 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action & Assert
       await commentRepository.addComment(addComment);
+
+      // Action & Assert
       await expect(
         commentRepository.deleteReply(deleteReply)
       ).rejects.toThrowError("balasan tidak ditemukan");
@@ -363,14 +370,16 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action & Assert
       await UsersTableTestHelper.addUser(forbiddenUser);
       await commentRepository.addComment(addComment);
       await commentRepository.addReply(addReply);
 
+      // Action & Assert
       await expect(commentRepository.deleteReply(deleteReply)).rejects.toThrow(
         AuthorizationError
       );
+
+      // Clean up
       await UsersTableTestHelper.deleteUser(forbiddenUser.id);
     });
 
@@ -408,9 +417,10 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action
       await commentRepository.addComment(addComment);
       await commentRepository.addReply(addReply);
+
+      // Action
       await commentRepository.deleteReply(deleteReply);
 
       // Assert
@@ -453,11 +463,226 @@ describe("CommentRepository postgres", () => {
         fakeIdGenerator
       );
 
-      // Action & Assert
       await commentRepository.addComment(addComment);
+
+      // Action & Assert
       await expect(
         commentRepository.verifyCommentExists("comment-123")
       ).resolves.not.toThrow(InvariantError);
+    });
+  });
+
+  describe("getByThreadId function", () => {
+    it("should get 0 comment", async () => {
+      // Arrange
+      const fakeIdGenerator = () => "123";
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      // Action
+      const data = await commentRepository.getByThreadId("thread-123");
+
+      // Assert
+      expect(data).toHaveLength(0);
+    });
+
+    it("should get 1 comment", async () => {
+      // Arrange
+      const payload = {
+        threadId: "thread-123",
+        content: "wleowleowleo",
+        owner: "user-123",
+      };
+      const addComment = new AddComment({
+        threadId: payload.threadId,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      const fakeIdGenerator = () => "123";
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      await commentRepository.addComment(addComment);
+
+      // Action
+      const data = await commentRepository.getByThreadId("thread-123");
+
+      // Assert
+      expect(data).toHaveLength(1);
+      expect(data[0].content).toBe(payload.content);
+      expect(data[0].id).toBe("comment-123");
+    });
+
+    it("should get 2 comments", async () => {
+      // Arrange
+      const payload = {
+        threadId: "thread-123",
+        content: "wleowleowleo",
+        owner: "user-123",
+      };
+      const addComment = new AddComment({
+        threadId: payload.threadId,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      const fakeIdGenerator = () => nanoid(3);
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      await commentRepository.addComment(addComment);
+      await commentRepository.addComment(addComment);
+
+      // Action
+      const data = await commentRepository.getByThreadId("thread-123");
+
+      // Assert
+      expect(data).toHaveLength(2);
+      expect(data[0].content).toBe(payload.content);
+      expect(data[1].content).toBe(payload.content);
+    });
+
+    it("should get 1 comment with 2 replies", async () => {
+      // Arrange
+      const payload = {
+        threadId: "thread-123",
+        content: "wleowleowleo",
+        owner: "user-123",
+      };
+      const addComment = new AddComment({
+        threadId: payload.threadId,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      const fakeIdGenerator = () => nanoid(3);
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      const addedComment = await commentRepository.addComment(addComment);
+      const addReply = new AddReply({
+        threadId: payload.threadId,
+        commentId: addedComment.id,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      await commentRepository.addReply(addReply);
+      await commentRepository.addReply(addReply);
+
+      // Action
+      const data = await commentRepository.getByThreadId("thread-123");
+
+      // Assert
+      expect(data).toHaveLength(1);
+      expect(data[0].content).toBe(payload.content);
+      expect(data[0].replies).toHaveLength(2);
+      expect(data[0].replies[0].content).toBe(payload.content);
+      expect(data[0].replies[1].content).toBe(payload.content);
+    });
+
+    it("should get 2 comments, 1 comment with reply", async () => {
+      // Arrange
+      const payload = {
+        threadId: "thread-123",
+        content: "wleowleowleo",
+        owner: "user-123",
+      };
+      const addComment = new AddComment({
+        threadId: payload.threadId,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      const fakeIdGenerator = () => nanoid(3);
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      const addedComment = await commentRepository.addComment(addComment);
+      const addReply = new AddReply({
+        threadId: payload.threadId,
+        commentId: addedComment.id,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      await commentRepository.addReply(addReply);
+      await commentRepository.addComment(addComment);
+
+      // Action
+      const data = await commentRepository.getByThreadId("thread-123");
+
+      // Assert
+      expect(data).toHaveLength(2);
+      expect(data[0].content).toBe(payload.content);
+      expect(data[0].replies).toHaveLength(1);
+      expect(data[0].replies[0].content).toBe(payload.content);
+      expect(data[1].content).toBe(payload.content);
+    });
+
+    it("should get 2 comments, has reply each", async () => {
+      // Arrange
+      const payload = {
+        threadId: "thread-123",
+        content: "wleowleowleo",
+        owner: "user-123",
+      };
+      const addComment = new AddComment({
+        threadId: payload.threadId,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      const fakeIdGenerator = () => nanoid(3);
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      // Comment 1
+      const addedComment = await commentRepository.addComment(addComment);
+      const addReply = new AddReply({
+        threadId: payload.threadId,
+        commentId: addedComment.id,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      await commentRepository.addReply(addReply);
+
+      // Comment 2
+      const addedCommentTwo = await commentRepository.addComment(addComment);
+      const addReplyTwo = new AddReply({
+        threadId: payload.threadId,
+        commentId: addedCommentTwo.id,
+        content: payload.content,
+        owner: payload.owner,
+      });
+
+      await commentRepository.addReply(addReplyTwo);
+
+      // Action
+      const data = await commentRepository.getByThreadId("thread-123");
+
+      // Assert
+      expect(data).toHaveLength(2);
+      expect(data[0].content).toBe(payload.content);
+      expect(data[0].replies).toHaveLength(1);
+      expect(data[0].replies[0].content).toBe(payload.content);
+      expect(data[1].content).toBe(payload.content);
+      expect(data[1].replies).toHaveLength(1);
+      expect(data[1].replies[0].content).toBe(payload.content);
     });
   });
 });

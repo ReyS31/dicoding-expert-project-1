@@ -19,7 +19,7 @@ describe("a AddedComment entities", () => {
     const payload = {
       id: 123,
       content: true,
-      owner: [],
+      owner: {},
     };
 
     // Action and Assert

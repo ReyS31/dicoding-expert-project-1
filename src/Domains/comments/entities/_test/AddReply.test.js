@@ -18,7 +18,7 @@ describe("a AddReply entities", () => {
   it("should throw error when payload did not meet data type specification", () => {
     // Arrange
     const payload = {
-      threadId: [],
+      threadId: 2,
       commentId: {},
       content: true,
       owner: 123,
