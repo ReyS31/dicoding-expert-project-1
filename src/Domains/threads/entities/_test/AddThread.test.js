@@ -18,6 +18,7 @@ describe("a AddThread entities", () => {
     const payload = {
       title: 123,
       body: true,
+      owner: [],
     };
 
     // Action and Assert
@@ -31,6 +32,7 @@ describe("a AddThread entities", () => {
     const payload = {
       title: "dicodingindonesiadicodingindonesiadicodingindonesiadicoding",
       body: "Dicoding Indonesia",
+      owner: "user-123",
     };
 
     // Action and Assert
@@ -44,13 +46,15 @@ describe("a AddThread entities", () => {
     const payload = {
       title: "dicoding",
       body: "Dicoding Indonesia",
+      owner: "user-123",
     };
 
     // Action
-    const { title, body } = new AddThread(payload);
+    const { title, body, owner } = new AddThread(payload);
 
     // Assert
     expect(title).toEqual(payload.title);
     expect(body).toEqual(payload.body);
+    expect(owner).toEqual(payload.owner);
   });
 });
