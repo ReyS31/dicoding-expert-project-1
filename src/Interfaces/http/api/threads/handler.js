@@ -10,9 +10,6 @@ const AuthenticationError = require("../../../../Commons/exceptions/Authenticati
 class ThreadsHandler {
   constructor(container) {
     this._container = container;
-    this._authenticationTokenManager = this._container.getInstance(
-      AuthenticationTokenManager.name
-    );
 
     this.postThreadHandler = this.postThreadHandler.bind(this);
     this.getThreadHandler = this.getThreadHandler.bind(this);
@@ -23,15 +20,16 @@ class ThreadsHandler {
   }
 
   async getUserIdbyAccessToken(authorization) {
+    const _authenticationTokenManager = this._container.getInstance(
+      AuthenticationTokenManager.name
+    );
     if (authorization === undefined) {
       throw new AuthenticationError("Missing authentication");
     }
 
     const accessToken = authorization.split(" ")[1];
 
-    const { id } = await this._authenticationTokenManager.decodePayload(
-      accessToken
-    );
+    const { id } = await _authenticationTokenManager.decodePayload(accessToken);
 
     return id;
   }

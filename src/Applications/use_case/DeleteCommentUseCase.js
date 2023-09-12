@@ -1,6 +1,5 @@
 const DeleteComment = require("../../Domains/comments/entities/DeleteComment");
 
-
 class DeleteCommentUseCase {
   constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
@@ -8,10 +7,14 @@ class DeleteCommentUseCase {
   }
 
   async execute(useCasePayload) {
+    this._validatePayload(useCasePayload);
     await this._threadRepository.getById(useCasePayload.threadId);
-    const deleteComment = new DeleteComment(useCasePayload);
-    return this._commentRepository.deleteComment(deleteComment);
+    return await this._commentRepository.deleteComment(useCasePayload);
   }
+
+  _validatePayload = (payload) => {
+    new DeleteComment(payload);
+  };
 }
 
 module.exports = DeleteCommentUseCase;

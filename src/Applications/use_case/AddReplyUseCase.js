@@ -1,6 +1,5 @@
 const AddReply = require("../../Domains/comments/entities/AddReply");
 
-
 class AddReplyUseCase {
   constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
@@ -8,10 +7,14 @@ class AddReplyUseCase {
   }
 
   async execute(useCasePayload) {
+    this._validatePayload(useCasePayload);
     await this._threadRepository.getById(useCasePayload.threadId);
-    const addReply = new AddReply(useCasePayload);
-    return this._commentRepository.addReply(addReply);
+    return await this._commentRepository.addReply(useCasePayload);
   }
+
+  _validatePayload = (payload) => {
+    new AddReply(payload);
+  };
 }
 
 module.exports = AddReplyUseCase;

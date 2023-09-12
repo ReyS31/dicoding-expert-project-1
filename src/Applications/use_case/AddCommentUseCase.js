@@ -7,10 +7,14 @@ class AddCommentUseCase {
   }
 
   async execute(useCasePayload) {
+    this._validatePayload(useCasePayload);
     await this._threadRepository.getById(useCasePayload.threadId);
-    const addComment = new AddComment(useCasePayload);
-    return this._commentRepository.addComment(addComment);
+    return await this._commentRepository.addComment(useCasePayload);
   }
+
+  _validatePayload = (payload) => {
+    new AddComment(payload);
+  };
 }
 
 module.exports = AddCommentUseCase;

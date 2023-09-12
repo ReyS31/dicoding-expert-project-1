@@ -14,7 +14,7 @@ describe("AuthenticationRepository postgres", () => {
   });
 
   afterAll(async () => {
-    // await UsersTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
     await pool.end();
   });
 

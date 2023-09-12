@@ -61,10 +61,6 @@ class CommentRepositoryPostgres extends CommentRepository {
       const element = result.rows[index];
       if (element.comment_id !== null) {
         const commentIndex = data.findIndex((c) => c.id === element.comment_id);
-        if (data[commentIndex].replies === undefined) {
-          data[commentIndex].replies = [new Reply(element)];
-          continue;
-        }
         data[commentIndex].replies.push(new Reply(element));
         continue;
       }

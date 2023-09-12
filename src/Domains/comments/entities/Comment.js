@@ -8,6 +8,7 @@ class Comment {
       ? "**komentar telah dihapus**"
       : payload.content;
     this.date = payload.date;
+    this.replies = [];
   }
 
   _verifyPayload(payload) {
