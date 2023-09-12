@@ -1,4 +1,4 @@
-const InvariantError = require("../../../Commons/exceptions/InvariantError");
+const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
 const AddComment = require("../../../Domains/comments/entities/AddComment");
 const AddedComment = require("../../../Domains/comments/entities/AddedComment");
 const AddReply = require("../../../Domains/comments/entities/AddReply");
@@ -84,7 +84,7 @@ describe("CommentRepository postgres", () => {
   });
 
   describe("addReply function", () => {
-    it("should throw InvariantError if comment not exists", async () => {
+    it("should throw NotFoundError if comment not exists", async () => {
       // Arrange
       const addReply = new AddReply({
         threadId: "thread-123",
@@ -100,7 +100,7 @@ describe("CommentRepository postgres", () => {
 
       // Action & Assert
       await expect(commentRepository.addReply(addReply)).rejects.toThrow(
-        InvariantError
+        NotFoundError
       );
     });
 
@@ -185,7 +185,7 @@ describe("CommentRepository postgres", () => {
   });
 
   describe("deleteComment function", () => {
-    it("should throw InvariantError if comment not exists", async () => {
+    it("should throw NotFoundError if comment not exists", async () => {
       // Arrange
       const deleteComment = new DeleteComment({
         commentId: "comment-123",
@@ -201,7 +201,7 @@ describe("CommentRepository postgres", () => {
       // Action & Assert
       await expect(
         commentRepository.deleteComment(deleteComment)
-      ).rejects.toThrow(InvariantError);
+      ).rejects.toThrow(NotFoundError);
     });
 
     it("should throw AuthoziationError if wrong comment owner", async () => {
@@ -283,7 +283,7 @@ describe("CommentRepository postgres", () => {
   });
 
   describe("deleteReply function", () => {
-    it("should throw InvariantError if comment does not exists", async () => {
+    it("should throw NotFoundError if comment does not exists", async () => {
       // Arrange
       const deleteReply = new DeleteReply({
         replyId: "reply-123",
@@ -303,7 +303,7 @@ describe("CommentRepository postgres", () => {
       ).rejects.toThrowError("comment tidak ditemukan");
     });
 
-    it("should throw InvariantError if reply does not exists", async () => {
+    it("should throw NotFoundError if reply does not exists", async () => {
       // Arrange
       const payload = {
         commentId: "comment-123",
@@ -436,7 +436,7 @@ describe("CommentRepository postgres", () => {
   });
 
   describe("verifyCommentExists function", () => {
-    it("should throw InvariantError if comment not exists", async () => {
+    it("should throw NotFoundError if comment not exists", async () => {
       // Arrange
       const fakeIdGenerator = () => "123";
       const commentRepository = new CommentRepositoryPostgres(
@@ -447,10 +447,10 @@ describe("CommentRepository postgres", () => {
       // Action & Assert
       await expect(
         commentRepository.verifyCommentExists("comment-123")
-      ).rejects.toThrow(InvariantError);
+      ).rejects.toThrow(NotFoundError);
     });
 
-    it("should not throw InvariantError if comment exists", async () => {
+    it("should not throw NotFoundError if comment exists", async () => {
       // Arrange
       const addComment = new AddComment({
         threadId: "thread-123",
@@ -468,7 +468,7 @@ describe("CommentRepository postgres", () => {
       // Action & Assert
       await expect(
         commentRepository.verifyCommentExists("comment-123")
-      ).resolves.not.toThrow(InvariantError);
+      ).resolves.not.toThrow(NotFoundError);
     });
   });
 

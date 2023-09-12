@@ -1,5 +1,5 @@
 const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
-const InvariantError = require("../../Commons/exceptions/InvariantError");
+const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const CommentRepository = require("../../Domains/comments/CommentRepository");
 const AddedComment = require("../../Domains/comments/entities/AddedComment");
 const AddedReply = require("../../Domains/comments/entities/AddedReply");
@@ -51,7 +51,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const query = {
       text: `SELECT cmt.id, cmt.comment_id, cmt.content, cmt.date, usr.username, cmt.is_delete 
       FROM comments as cmt JOIN users as usr ON cmt.owner = usr.id 
-      WHERE cmt.thread_id = $1`,
+      WHERE cmt.thread_id = $1 ORDER BY cmt.date ASC`,
       values: [threadId],
     };
 
@@ -115,7 +115,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new InvariantError(
+      throw new NotFoundError(
         isReply ? "balasan tidak ditemukan" : "comment tidak ditemukan"
       );
     }
