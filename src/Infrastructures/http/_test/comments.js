@@ -8,7 +8,11 @@ const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 
 describe("/thread endpoint", () => {
   // test variable
+  const threadId = "thread-123";
+
   let accessToken;
+  let accessTokenUdin;
+  let commentId;
 
   async function addUserAndGetAccessToken({
     username = "dicoding",
@@ -44,6 +48,12 @@ describe("/thread endpoint", () => {
 
   beforeAll(async () => {
     accessToken = await addUserAndGetAccessToken({});
+    accessTokenUdin = await addUserAndGetAccessToken({
+      username: "udin",
+      password: "rahasia",
+      fullname: "Udin Bala",
+    });
+    ThreadsTableTestHelper.addThread({});
   });
 
   afterAll(async () => {
@@ -54,20 +64,18 @@ describe("/thread endpoint", () => {
     await pool.end();
   });
 
-  describe("when POST /threads", () => {
-    it("should response 201 and persisted thread", async () => {
+  describe("when POST /threads/{threadId}/comments", () => {
+    it("should response 201 and persisted comments", async () => {
       // Arrange
       const requestPayload = {
-        title: "dicoding",
-        body: "Dicoding Indonesia",
+        content: "Dicoding Indonesia",
       };
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
-
       // Action
       const response = await server.inject({
         method: "POST",
-        url: "/threads",
+        url: `/threads/${threadId}/comments`,
         payload: requestPayload,
         headers: {
           authorization: accessToken,
@@ -78,48 +86,23 @@ describe("/thread endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual("success");
-      expect(responseJson.data.addedThread).toBeDefined();
+      expect(responseJson.data.addedComment).toBeDefined();
 
-      // set threadId
-      threadId = responseJson.data.addedThread.id;
-    });
-
-    it("should response 400 when request payload not contain needed property", async () => {
-      // Arrange
-      const requestPayload = {
-        title: "Dicoding Indonesia",
-      };
-      const server = await createServer(container);
-
-      // Action
-      const response = await server.inject({
-        method: "POST",
-        url: "/threads",
-        payload: requestPayload,
-        headers: {
-          authorization: accessToken,
-        },
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual("fail");
-      expect(responseJson.message).toEqual("harus mengirimkan title dan body");
+      // set commentId
+      commentId = responseJson.data.addedComment.id;
     });
 
     it("should response 400 when request payload not meet data type specification", async () => {
       // Arrange
       const requestPayload = {
-        title: ["dicoding"],
-        body: { password: "secret" },
+        content: { content: "Dicoding Indonesia" },
       };
+      // eslint-disable-next-line no-undef
       const server = await createServer(container);
-
       // Action
       const response = await server.inject({
         method: "POST",
-        url: "/threads",
+        url: `/threads/${threadId}/comments`,
         payload: requestPayload,
         headers: {
           authorization: accessToken,
@@ -130,21 +113,18 @@ describe("/thread endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
-      expect(responseJson.message).toEqual("tipe data salah");
+      expect(responseJson.message).toEqual("content harus string");
     });
 
-    it("should response 400 when title more than 50 character", async () => {
+    it("should response 400 when request payload not contain needed property", async () => {
       // Arrange
-      const requestPayload = {
-        title: "dicodingindonesiadicodingindonesiadicodingindonesiadicoding",
-        body: "Dicoding Indonesia",
-      };
+      const requestPayload = {};
+      // eslint-disable-next-line no-undef
       const server = await createServer(container);
-
       // Action
       const response = await server.inject({
         method: "POST",
-        url: "/threads",
+        url: `/threads/${threadId}/comments`,
         payload: requestPayload,
         headers: {
           authorization: accessToken,
@@ -155,23 +135,20 @@ describe("/thread endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
-      expect(responseJson.message).toEqual(
-        "tidak dapat membuat thread baru karena karakter title melebihi batas limit"
-      );
+      expect(responseJson.message).toEqual("harus mengirimkan content");
     });
 
     it("should response 401 when have no auth", async () => {
       // Arrange
       const requestPayload = {
-        title: "dicoding",
-        body: "Dicoding Indonesia",
+        content: "Dicoding Indonesia",
       };
+      // eslint-disable-next-line no-undef
       const server = await createServer(container);
-
       // Action
       const response = await server.inject({
         method: "POST",
-        url: "/threads",
+        url: `/threads/${threadId}/comments`,
         payload: requestPayload,
       });
 
@@ -181,37 +158,22 @@ describe("/thread endpoint", () => {
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual("Missing authentication");
     });
-  });
-
-  describe("when GET /threads", () => {
-    it("should response 200", async () => {
-      // Arrange
-      // eslint-disable-next-line no-undef
-      const server = await createServer(container);
-
-      // Action
-      const response = await server.inject({
-        method: "GET",
-        url: `/threads/${threadId}`,
-      });
-
-      // Assert
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(200);
-      expect(responseJson.status).toEqual("success");
-      expect(responseJson.data.thread).toBeDefined();
-      expect(responseJson.data.thread.comments).toHaveLength(0);
-    });
 
     it("should response 404 when no thread found", async () => {
       // Arrange
+      const requestPayload = {
+        content: "Dicoding Indonesia",
+      };
       // eslint-disable-next-line no-undef
       const server = await createServer(container);
-
       // Action
       const response = await server.inject({
-        method: "GET",
-        url: `/threads/xxx`,
+        method: "POST",
+        url: `/threads/xxx/comments`,
+        payload: requestPayload,
+        headers: {
+          authorization: accessToken,
+        },
       });
 
       // Assert
@@ -219,6 +181,104 @@ describe("/thread endpoint", () => {
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual("thread tidak ditemukan");
+    });
+  });
+
+  describe("when DELETE /threads/{threadId}/comments/{commentId}", () => {
+    it("should response 200 and comment deleted", async () => {
+      // Arrange
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: "DELETE",
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          authorization: accessToken,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+    });
+
+    it("should response 401 when have no auth", async () => {
+      // Arrange
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: "DELETE",
+        url: `/threads/${threadId}/comments/${commentId}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("Missing authentication");
+    });
+
+    it("should response 403 when wrong user", async () => {
+      // Arrange
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: "DELETE",
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          authorization: accessTokenUdin,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("ga boleh");
+    });
+
+    it("should response 404 when no thread found", async () => {
+      // Arrange
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: "DELETE",
+        url: `/threads/xxx/comments/${commentId}`,
+        headers: {
+          authorization: accessToken,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("thread tidak ditemukan");
+    });
+
+    it("should response 404 when no comment found", async () => {
+      // Arrange
+      // eslint-disable-next-line no-undef
+      const server = await createServer(container);
+      // Action
+      const response = await server.inject({
+        method: "DELETE",
+        url: `/threads/${threadId}/comments/xxx`,
+        headers: {
+          authorization: accessToken,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("comment tidak ditemukan");
     });
   });
 });

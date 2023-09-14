@@ -12,12 +12,13 @@ describe("GetThreadUseCase", () => {
   it("should orchestrating the add comment action correctly", async () => {
     // Arrange
     const useCasePayload = "thread-123";
+    const date = new Date().toISOString();
 
     const mockThread = new Thread({
       id: "thread-123",
       title: "title",
       body: "body",
-      date: new Date().toISOString(),
+      date: date,
       username: "udin",
     });
 
@@ -39,16 +40,27 @@ describe("GetThreadUseCase", () => {
       threadRepository: mockThreadRepository,
     });
 
+    // mocking fetchReplies with empty array
+    // because mockCommentRepository.getByThreadId returning empty array
+    getThreadUseCase.fetchReplies = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve([]));
+
     // Action
     const threads = await getThreadUseCase.execute(useCasePayload);
 
     // Assert
     expect(threads).toStrictEqual({
-      ...mockThread,
+      id: "thread-123",
+      title: "title",
+      body: "body",
+      date: date,
+      username: "udin",
       comments: [],
     });
 
     expect(mockThreadRepository.getById).toBeCalledWith(useCasePayload);
     expect(mockCommentRepository.getByThreadId).toBeCalledWith(useCasePayload);
+    expect(getThreadUseCase.fetchReplies).toBeCalledWith([]);
   });
 });
