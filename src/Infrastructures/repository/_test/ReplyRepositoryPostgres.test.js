@@ -110,7 +110,7 @@ describe("ReplyRepository postgres", () => {
       await UsersTableTestHelper.deleteUser(forbiddenUser.id);
     });
 
-    it("should soft delete comment successfully", async () => {
+    it("should soft delete reply successfully", async () => {
       // Arrange
       const payload = {
         commentId: "comment-123",
@@ -172,7 +172,7 @@ describe("ReplyRepository postgres", () => {
     });
   });
 
-  describe("getByCommentId function", () => {
+  describe("getByCommentsId function", () => {
     it("should get 0 reply", async () => {
       // Arrange
       const fakeIdGenerator = () => "123";
@@ -182,7 +182,7 @@ describe("ReplyRepository postgres", () => {
       );
 
       // Action
-      const data = await replyRepository.getByCommentId("comment-123");
+      const data = await replyRepository.getByCommentIds(["comment-123"]);
 
       // Assert
       expect(data).toHaveLength(0);
@@ -199,7 +199,7 @@ describe("ReplyRepository postgres", () => {
       await RepliesTableTestHelper.addReply({});
 
       // Action
-      const data = await replyRepository.getByCommentId("comment-123");
+      const data = await replyRepository.getByCommentIds(["comment-123"]);
 
       // Assert
       expect(data).toHaveLength(1);
@@ -219,7 +219,7 @@ describe("ReplyRepository postgres", () => {
       await RepliesTableTestHelper.addReply({ id: "reply-234" });
 
       // Action
-      const data = await replyRepository.getByCommentId("comment-123");
+      const data = await replyRepository.getByCommentIds(["comment-123"]);
 
       // Assert
       expect(data).toHaveLength(2);

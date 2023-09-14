@@ -10,7 +10,7 @@ describe("ReplyRepository interface", () => {
       "REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED"
     );
     
-    await expect(replyRepository.getByCommentId("")).rejects.toThrowError(
+    await expect(replyRepository.getByCommentIds("")).rejects.toThrowError(
       "REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED"
     );
 

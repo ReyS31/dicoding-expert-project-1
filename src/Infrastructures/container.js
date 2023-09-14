@@ -127,10 +127,6 @@ container.register([
         {
           concrete: nanoid,
         },
-        {
-          name: "replyRepository",
-          internal: ReplyRepository.name,
-        },
       ],
     },
   },
@@ -312,6 +308,10 @@ container.register([
         {
           name: "commentRepository",
           internal: CommentRepository.name,
+        },
+        {
+          name: "replyRepository",
+          internal: ReplyRepository.name,
         },
       ],
     },

@@ -42,21 +42,22 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     }
   }
 
-  async getByCommentId(commentId) {
+  async getByCommentIds(commentIds) {
+    const params = [];
+    for (let i = 1; i <= commentIds.length; i++) {
+      params.push("$" + i);
+    }
+
     const query = {
-      text: `SELECT rpl.id, rpl.content, rpl.date, usr.username, rpl.is_delete 
+      text: `SELECT rpl.id, rpl.comment_id, rpl.content, rpl.date, usr.username, rpl.is_delete 
       FROM replies as rpl JOIN users as usr ON rpl.owner = usr.id 
-      WHERE rpl.comment_id = $1 ORDER BY rpl.date ASC`,
-      values: [commentId],
+      WHERE rpl.comment_id IN (${params.join(",")}) ORDER BY rpl.date ASC`,
+      values: commentIds,
     };
 
     const result = await this._pool.query(query);
-    const data = [];
-    for (let index = 0; index < result.rows.length; index++) {
-      data.push(new Reply(result.rows[index]));
-    }
 
-    return data;
+    return result.rows;
   }
 
   async verifyReplyExists(id) {

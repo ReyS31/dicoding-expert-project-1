@@ -5,11 +5,10 @@ const AddedComment = require("../../Domains/comments/entities/AddedComment");
 const Comment = require("../../Domains/comments/entities/Comment");
 
 class CommentRepositoryPostgres extends CommentRepository {
-  constructor(pool, idGenerator, replyRepository) {
+  constructor(pool, idGenerator) {
     super();
     this._pool = pool;
     this._idGenerator = idGenerator;
-    this._replyRepository = replyRepository;
   }
 
   async addComment(addComment) {
@@ -37,14 +36,8 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-    const data = [];
-    for (let index = 0; index < result.rows.length; index++) {
-      const element = new Comment(result.rows[index]);
-      element.replies = await this._replyRepository.getByCommentId(element.id);
-      data.push(element);
-    }
 
-    return data;
+    return result.rows;
   }
 
   async deleteComment(deleteComment) {
