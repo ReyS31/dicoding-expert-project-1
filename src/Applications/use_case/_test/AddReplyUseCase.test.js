@@ -1,6 +1,7 @@
+const ReplyRepository = require("../../../Domains/replies/ReplyRepository");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
-const AddReply = require("../../../Domains/comments/entities/AddReply");
-const AddedReply = require("../../../Domains/comments/entities/AddedReply");
+const AddReply = require("../../../Domains/replies/entities/AddReply");
+const AddedReply = require("../../../Domains/replies/entities/AddedReply");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 const AddReplyUseCase = require("../AddReplyUseCase");
 
@@ -24,6 +25,7 @@ describe("AddReplyUseCase", () => {
     });
 
     /** creating dependency of use case */
+    const mockReplyRepository = new ReplyRepository();
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
 
@@ -31,13 +33,17 @@ describe("AddReplyUseCase", () => {
     mockThreadRepository.getById = jest
       .fn()
       .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.addReply = jest
+    mockCommentRepository.verifyCommentExists = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve());
+    mockReplyRepository.addReply = jest
       .fn()
       .mockImplementation(() => Promise.resolve(mockAddedReply));
 
     /** creating use case instance */
     const addReplyUseCase = new AddReplyUseCase({
       commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
       threadRepository: mockThreadRepository,
     });
 
@@ -56,7 +62,10 @@ describe("AddReplyUseCase", () => {
     expect(mockThreadRepository.getById).toBeCalledWith(
       useCasePayload.threadId
     );
-    expect(mockCommentRepository.addReply).toBeCalledWith(
+    expect(mockCommentRepository.verifyCommentExists).toBeCalledWith(
+      useCasePayload.commentId
+    );
+    expect(mockReplyRepository.addReply).toBeCalledWith(
       new AddReply({
         threadId: useCasePayload.threadId,
         commentId: useCasePayload.commentId,

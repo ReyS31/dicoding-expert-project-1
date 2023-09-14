@@ -9,21 +9,17 @@ describe("CommentRepository interface", () => {
     await expect(commentRepository.addComment({})).rejects.toThrowError(
       "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED"
     );
-    await expect(commentRepository.addReply({})).rejects.toThrowError(
-      "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED"
-    );
+
     await expect(commentRepository.getByThreadId("")).rejects.toThrowError(
       "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED"
     );
+
     await expect(commentRepository.deleteComment("")).rejects.toThrowError(
       "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED"
     );
-    await expect(commentRepository.deleteReply("")).rejects.toThrowError(
-      "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED"
-    );
 
-    await expect(commentRepository.verifyCommentExists("")).rejects.toThrowError(
-      "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED"
-    );
+    await expect(
+      commentRepository.verifyCommentExists("")
+    ).rejects.toThrowError("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   });
 });

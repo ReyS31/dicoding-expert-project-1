@@ -3,19 +3,11 @@ class CommentRepository {
     throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
 
-  async addReply(addReply) {
-    throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
-  }
-
-  async getByThreadId(commentId) {
+  async getByThreadId(threadId) {
     throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
   
   async deleteComment(deleteComment) {
-    throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
-  }
-
-  async deleteReply(deleteReply) {
     throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
 

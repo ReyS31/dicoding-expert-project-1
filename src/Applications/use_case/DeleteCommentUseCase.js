@@ -9,6 +9,7 @@ class DeleteCommentUseCase {
   async execute(useCasePayload) {
     this._validatePayload(useCasePayload);
     await this._threadRepository.getById(useCasePayload.threadId);
+    await this._commentRepository.verifyCommentExists(useCasePayload.commentId);
     return await this._commentRepository.deleteComment(useCasePayload);
   }
 

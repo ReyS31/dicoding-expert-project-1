@@ -3,12 +3,12 @@
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-  pgm.createTable("comments", {
+  pgm.createTable("replies", {
     id: {
       type: "VARCHAR(50)",
       primaryKey: true,
     },
-    thread_id: {
+    comment_id: {
       type: "VARCHAR(50)",
       notNull: true,
     },
@@ -31,18 +31,18 @@ exports.up = (pgm) => {
   });
 
   pgm.addConstraint(
-    "comments",
-    "fk_comments.user.id",
+    "replies",
+    "fk_replies.user.id",
     "FOREIGN KEY(owner) REFERENCES users(id) ON DELETE CASCADE"
   );
 
   pgm.addConstraint(
-    "comments",
-    "fk_comments.thread.id",
-    "FOREIGN KEY(thread_id) REFERENCES threads(id) ON DELETE CASCADE"
+    "replies",
+    "fk_replies.comment.id",
+    "FOREIGN KEY(comment_id) REFERENCES comments(id) ON DELETE CASCADE"
   );
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable("comments");
+  pgm.dropTable("replies");
 };
