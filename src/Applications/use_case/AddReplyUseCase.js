@@ -9,7 +9,7 @@ class AddReplyUseCase {
 
   async execute(useCasePayload) {
     this._validatePayload(useCasePayload);
-    await this._threadRepository.getById(useCasePayload.threadId);
+    await this._threadRepository.verifyThreadExists(useCasePayload.threadId);
     await this._commentRepository.verifyCommentExists(useCasePayload.commentId);
     return await this._replyRepository.addReply(useCasePayload);
   }

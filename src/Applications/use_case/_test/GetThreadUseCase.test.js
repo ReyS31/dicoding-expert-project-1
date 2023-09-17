@@ -10,7 +10,7 @@ describe("GetThreadUseCase", () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
-  it("should orchestrating the get thread action correctly", async () => {
+  it("should orchestrating the get thread action correctly with comment", async () => {
     // Arrange
     const payload = {
       date: new Date().toISOString(),
@@ -98,5 +98,59 @@ describe("GetThreadUseCase", () => {
     expect(mockThreadRepository.getById).toBeCalledWith(useCasePayload);
     expect(mockCommentRepository.getByThreadId).toBeCalledWith(useCasePayload);
     expect(mockReplyRepository.getByCommentIds).toBeCalledWith(["comment-123"]);
+  });
+
+  it("should orchestrating the get thread action correctly without comment", async () => {
+    // Arrange
+    const payload = {
+      date: new Date().toISOString(),
+      username: "udin",
+      content: "content",
+    };
+    const useCasePayload = "thread-123";
+
+    const mockThread = new Thread({
+      id: "thread-123",
+      title: "title",
+      body: "body",
+      date: payload.date,
+      username: payload.username,
+    });
+
+    /** creating dependency of use case */
+    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new ThreadRepository();
+    const mockReplyRepository = new ReplyRepository();
+
+    /** mocking needed function */
+    mockThreadRepository.getById = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(mockThread));
+    mockCommentRepository.getByThreadId = jest
+      .fn()
+      .mockImplementation(() => Promise.resolve([]));
+
+    /** creating use case instance */
+    const getThreadUseCase = new GetThreadUseCase({
+      commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
+      replyRepository: mockReplyRepository,
+    });
+
+    // Action
+    const threads = await getThreadUseCase.execute(useCasePayload);
+
+    // Assert
+    expect(threads).toEqual({
+      id: "thread-123",
+      title: "title",
+      body: "body",
+      date: payload.date,
+      username: payload.username,
+      comments: [],
+    });
+
+    expect(mockThreadRepository.getById).toBeCalledWith(useCasePayload);
+    expect(mockCommentRepository.getByThreadId).toBeCalledWith(useCasePayload);
   });
 });

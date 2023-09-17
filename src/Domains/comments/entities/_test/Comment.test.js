@@ -50,6 +50,7 @@ describe("a Comment entities", () => {
     expect(username).toEqual(payload.username);
     expect(content).toEqual(payload.content);
     expect(date).toEqual(payload.date);
+    expect(replies).toHaveLength(0);
   });
 
   it("should create deleted Comment object correctly", () => {
@@ -63,12 +64,13 @@ describe("a Comment entities", () => {
     };
 
     // Action
-    const { id, content, username, date } = new Comment(payload);
+    const { id, content, username, date, replies } = new Comment(payload);
 
     // Assert
     expect(id).toEqual(payload.id);
     expect(username).toEqual(payload.username);
     expect(content).toEqual("**komentar telah dihapus**");
     expect(date).toEqual(payload.date);
+    expect(replies).toHaveLength(0);
   });
 });

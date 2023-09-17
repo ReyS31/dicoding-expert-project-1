@@ -15,11 +15,7 @@ class GetThreadUseCase {
     const commentsRaw = await this._commentRepository.getByThreadId(
       useCasePayload
     );
-    const comments = [];
-    for (let index = 0; index < commentsRaw.length; index++) {
-      const element = new Comment(commentsRaw[index]);
-      comments.push(element);
-    }
+    const comments = commentsRaw.map((c) => new Comment(c));
     //#endregion
 
     //#region GetReplies
@@ -30,13 +26,12 @@ class GetThreadUseCase {
         commentIds
       );
 
-      for (let index = 0; index < repliesRaw.length; index++) {
-        const element = repliesRaw[index];
-        const commentIndex = comments.findIndex(
-          (c) => c.id === element.comment_id
-        );
-        comments[commentIndex].replies.push(new Reply(element));
-      }
+      comments.map(
+        (c) =>
+          (c.replies = repliesRaw
+            .filter((r) => r.comment_id === c.id)
+            .map((r) => new Reply(r)))
+      );
     }
     //#endregion
 

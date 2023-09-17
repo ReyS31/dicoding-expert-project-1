@@ -21,5 +21,9 @@ describe("ReplyRepository interface", () => {
     await expect(replyRepository.verifyReplyExists("")).rejects.toThrowError(
       "REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED"
     );
+
+    await expect(replyRepository.verifyReplyOwner("","")).rejects.toThrowError(
+      "REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED"
+    );
   });
 });

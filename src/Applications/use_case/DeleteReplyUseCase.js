@@ -9,9 +9,13 @@ class DeleteReplyUseCase {
 
   async execute(useCasePayload) {
     this._validatePayload(useCasePayload);
-    await this._threadRepository.getById(useCasePayload.threadId);
+    await this._threadRepository.verifyThreadExists(useCasePayload.threadId);
     await this._commentRepository.verifyCommentExists(useCasePayload.commentId);
     await this._replyRepository.verifyReplyExists(useCasePayload.replyId);
+    await this._replyRepository.verifyReplyOwner(
+      useCasePayload.replyId,
+      useCasePayload.owner
+    );
     return await this._replyRepository.deleteReply(useCasePayload);
   }
 

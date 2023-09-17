@@ -9,6 +9,7 @@ const CommentRepositoryPostgres = require("../CommentRepositoryPostgres");
 const AuthorizationError = require("../../../Commons/exceptions/AuthorizationError");
 const ReplyRepositoryPostgres = require("../ReplyRepositoryPostgres");
 const { nanoid } = require("nanoid");
+const InvariantError = require("../../../Commons/exceptions/InvariantError");
 
 describe("CommentRepository postgres", () => {
   let replyRepository;
@@ -107,7 +108,7 @@ describe("CommentRepository postgres", () => {
 
       // Action & Assert
       await expect(commentRepository.deleteComment(payload)).rejects.toThrow(
-        AuthorizationError
+        InvariantError
       );
 
       // Clean up
@@ -179,7 +180,52 @@ describe("CommentRepository postgres", () => {
     });
   });
 
+  describe("verifyCommentOwner function", () => {
+    it("should throw AuthorizationError if not owner", async () => {
+      // Arrange
+      const fakeIdGenerator = () => "123";
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+        replyRepository
+      );
+      await CommentsTableTestHelper.addComment({});
+
+      // Action & Assert
+      await expect(
+        commentRepository.verifyCommentOwner("comment-123", 'user-345')
+      ).rejects.toThrow(AuthorizationError);
+    });
+
+    it("should not throw AuthorizationError if true owner", async () => {
+      // Arrange
+      const fakeIdGenerator = () => "123";
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+        replyRepository
+      );
+
+      await CommentsTableTestHelper.addComment({});
+
+      // Action & Assert
+      await expect(
+        commentRepository.verifyCommentOwner("comment-123", "user-123")
+      ).resolves.not.toThrow(NotFoundError);
+    });
+  });
+
   describe("getByThreadId function", () => {
+    function verifyComments(comments, payload) {
+      comments.forEach((comment) => {
+        expect(comment.id).toBeDefined();
+        expect(comment.content).toBe(payload.content);
+        expect(comment.date).toBeDefined();
+        expect(comment.username).toBe("dicoding");
+        expect(comment.is_delete).toBe(false);
+      });
+    }
+
     it("should get 0 comment", async () => {
       // Arrange
       const fakeIdGenerator = () => "123";
@@ -223,8 +269,7 @@ describe("CommentRepository postgres", () => {
 
       // Assert
       expect(data).toHaveLength(1);
-      expect(data[0].content).toBe(payload.content);
-      expect(data[0].id).toBe("comment-123");
+      verifyComments(data, payload);
     });
 
     it("should get 2 comments", async () => {
@@ -255,8 +300,7 @@ describe("CommentRepository postgres", () => {
 
       // Assert
       expect(data).toHaveLength(2);
-      expect(data[0].content).toBe(payload.content);
-      expect(data[1].content).toBe(payload.content);
+      verifyComments(data, payload);
     });
   });
 });

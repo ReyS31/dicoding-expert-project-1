@@ -3,6 +3,7 @@ const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const ReplyRepository = require("../../Domains/replies/ReplyRepository");
 const Reply = require("../../Domains/replies/entities/Reply");
 const AddedReply = require("../../Domains/replies/entities/AddedReply");
+const InvariantError = require("../../Commons/exceptions/InvariantError");
 
 class ReplyRepositoryPostgres extends ReplyRepository {
   constructor(pool, idGenerator) {
@@ -38,7 +39,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new AuthorizationError("ga boleh");
+      throw new InvariantError("query error");
     }
   }
 
@@ -70,6 +71,19 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     if (!result.rowCount) {
       throw new NotFoundError("balasan tidak ditemukan");
+    }
+  }
+
+  async verifyReplyOwner(id, owner) {
+    const query = {
+      text: "SELECT id FROM replies WHERE id = $1 AND owner = $2",
+      values: [id, owner],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new AuthorizationError("ga boleh");
     }
   }
 }

@@ -7,6 +7,7 @@ const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const pool = require("../../database/postgres/pool");
 const ReplyRepositoryPostgres = require("../ReplyRepositoryPostgres");
 const AuthorizationError = require("../../../Commons/exceptions/AuthorizationError");
+const InvariantError = require("../../../Commons/exceptions/InvariantError");
 
 describe("ReplyRepository postgres", () => {
   beforeAll(async () => {
@@ -103,7 +104,7 @@ describe("ReplyRepository postgres", () => {
 
       // Action & Assert
       await expect(replyRepository.deleteReply(payload)).rejects.toThrow(
-        AuthorizationError
+        InvariantError
       );
 
       // Clean up
@@ -169,6 +170,40 @@ describe("ReplyRepository postgres", () => {
       await expect(
         replyRepository.verifyReplyExists("reply-123")
       ).resolves.not.toThrow(NotFoundError);
+    });
+  });
+
+  describe("verifyReplyOwner function", () => {
+    it("should throw AuthorizationError if not owner", async () => {
+      // Arrange
+      const fakeIdGenerator = () => "123";
+      const replyRepository = new ReplyRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      await RepliesTableTestHelper.addReply({});
+
+      // Action & Assert
+      await expect(
+        replyRepository.verifyReplyOwner("reply-123", "user-321")
+      ).rejects.toThrow(AuthorizationError);
+    });
+
+    it("should not throw AuthorizationError if true owner", async () => {
+      // Arrange
+      const fakeIdGenerator = () => "123";
+      const replyRepository = new ReplyRepositoryPostgres(
+        pool,
+        fakeIdGenerator
+      );
+
+      await RepliesTableTestHelper.addReply({});
+
+      // Action & Assert
+      await expect(
+        replyRepository.verifyReplyOwner("reply-123", "user-123")
+      ).resolves.not.toThrow(AuthorizationError);
     });
   });
 

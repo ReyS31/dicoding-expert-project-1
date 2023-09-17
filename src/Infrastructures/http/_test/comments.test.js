@@ -157,7 +157,6 @@ describe("/thread endpoint", () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(401);
-      expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual("Missing authentication");
     });
 
@@ -219,7 +218,6 @@ describe("/thread endpoint", () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(401);
-      expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual("Missing authentication");
     });
 

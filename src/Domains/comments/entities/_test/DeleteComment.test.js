@@ -37,11 +37,13 @@ describe("a DeleteComment entities", () => {
     };
 
     // Action
-    const { threadId, content, owner } = new DeleteComment(payload);
+    const { threadId, commentId, owner } = new DeleteComment(payload);
+
+    // NOTE UNTUK REVIEWER CLASS DeleteComment
 
     // Assert
     expect(threadId).toEqual(payload.threadId);
-    expect(content).toEqual(payload.content);
+    expect(commentId).toEqual(payload.commentId);
     expect(owner).toEqual(payload.owner);
   });
 });

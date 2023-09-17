@@ -1,4 +1,5 @@
 const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
+const InvariantError = require("../../Commons/exceptions/InvariantError");
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const CommentRepository = require("../../Domains/comments/CommentRepository");
 const AddedComment = require("../../Domains/comments/entities/AddedComment");
@@ -51,7 +52,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new AuthorizationError("ga boleh");
+      throw new InvariantError("query error");
     }
   }
 
@@ -65,6 +66,19 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     if (!result.rowCount) {
       throw new NotFoundError("comment tidak ditemukan");
+    }
+  }
+
+  async verifyCommentOwner(id, owner) {
+    const query = {
+      text: "SELECT id FROM comments WHERE id = $1 AND owner = $2",
+      values: [id, owner],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new AuthorizationError("ga boleh");
     }
   }
 }
