@@ -1,16 +1,18 @@
 /* istanbul ignore file */
-const pool = require("../src/Infrastructures/database/postgres/pool");
+const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const CommentsTableTestHelper = {
   async addComment({
-    id = "comment-123",
-    thread_id = "thread-123",
-    content = "dicoding",
-    owner = "user-123",
+    id = 'comment-123',
+    // eslint-disable-next-line camelcase
+    thread_id = 'thread-123',
+    content = 'dicoding',
+    owner = 'user-123',
     date = new Date().toISOString(),
   }) {
     const query = {
-      text: "INSERT INTO comments VALUES($1, $2, $3, $4, $5)",
+      text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5)',
+      // eslint-disable-next-line camelcase
       values: [id, thread_id, content, owner, date],
     };
 
@@ -19,7 +21,7 @@ const CommentsTableTestHelper = {
 
   async findById(id) {
     const query = {
-      text: "SELECT * FROM comments WHERE id = $1",
+      text: 'SELECT * FROM comments WHERE id = $1',
       values: [id],
     };
 
@@ -27,9 +29,9 @@ const CommentsTableTestHelper = {
     return result.rows;
   },
 
-  async findCommentsByThreadId({ threadId = "thread-123" }) {
+  async findCommentsByThreadId({ threadId = 'thread-123' }) {
     const query = {
-      text: "SELECT * FROM comments WHERE thread_id = $1",
+      text: 'SELECT * FROM comments WHERE thread_id = $1',
       values: [threadId],
     };
 
@@ -38,12 +40,12 @@ const CommentsTableTestHelper = {
   },
 
   async deleteComment({
-    id = "comment-123",
-    threadId = "thread-123",
-    owner = "user-123",
+    id = 'comment-123',
+    threadId = 'thread-123',
+    owner = 'user-123',
   }) {
     const query = {
-      text: "UPDATE comments SET is_delete = TRUE WHERE id = $1 AND thread_id = $2 AND owner = $3",
+      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1 AND thread_id = $2 AND owner = $3',
       values: [id, threadId, owner],
     };
 
@@ -51,7 +53,7 @@ const CommentsTableTestHelper = {
   },
 
   async cleanTable() {
-    await pool.query("DELETE FROM comments WHERE 1=1");
+    await pool.query('DELETE FROM comments WHERE 1=1');
   },
 };
 

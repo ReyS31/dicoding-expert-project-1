@@ -1,4 +1,4 @@
-const routes = (handler) => ([
+const routes = (handler) => [
   {
     method: 'POST',
     path: '/authentications',
@@ -14,6 +14,6 @@ const routes = (handler) => ([
     path: '/authentications',
     handler: handler.deleteAuthenticationHandler,
   },
-]);
+];
 
 module.exports = routes;

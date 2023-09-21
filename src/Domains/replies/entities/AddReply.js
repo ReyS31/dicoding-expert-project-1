@@ -9,19 +9,21 @@ class AddReply {
   }
 
   _verifyPayload(payload) {
-    const { threadId, commentId, content, owner } = payload;
+    const {
+      threadId, commentId, content, owner,
+    } = payload;
 
     if (!threadId || !commentId || !content || !owner) {
-      throw new Error("ADD_REPLY.NOT_CONTAIN_NEEDED_PROPERTY");
+      throw new Error('ADD_REPLY.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (
-      typeof threadId !== "string" ||
-      typeof commentId !== "string" ||
-      typeof content !== "string" ||
-      typeof owner !== "string"
+      typeof threadId !== 'string'
+      || typeof commentId !== 'string'
+      || typeof content !== 'string'
+      || typeof owner !== 'string'
     ) {
-      throw new Error("ADD_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION");
+      throw new Error('ADD_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
 }

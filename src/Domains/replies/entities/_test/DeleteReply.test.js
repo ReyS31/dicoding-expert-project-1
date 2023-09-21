@@ -1,21 +1,21 @@
-const DeleteReply = require("../DeleteReply");
+const DeleteReply = require('../DeleteReply');
 
-describe("a DeleteReply entities", () => {
-  it("should throw error when payload did not contain needed property", () => {
+describe('a DeleteReply entities', () => {
+  it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
-      threadId: "thread-123",
-      commentId: "comment-123",
-      replyId: "reply-123",
+      threadId: 'thread-123',
+      commentId: 'comment-123',
+      replyId: 'reply-123',
     };
 
     // Action and Assert
     expect(() => new DeleteReply(payload)).toThrowError(
-      "DELETE_REPLY.NOT_CONTAIN_NEEDED_PROPERTY"
+      'DELETE_REPLY.NOT_CONTAIN_NEEDED_PROPERTY',
     );
   });
 
-  it("should throw error when payload did not meet data type specification", () => {
+  it('should throw error when payload did not meet data type specification', () => {
     // Arrange
     const payload = {
       threadId: 2,
@@ -26,21 +26,23 @@ describe("a DeleteReply entities", () => {
 
     // Action and Assert
     expect(() => new DeleteReply(payload)).toThrowError(
-      "DELETE_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION"
+      'DELETE_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION',
     );
   });
 
-  it("should create DeleteReply object correctly", () => {
+  it('should create DeleteReply object correctly', () => {
     // Arrange
     const payload = {
-      threadId: "thread-123",
-      commentId: "comment-123",
-      replyId: "reply-123",
-      owner: "user-123",
+      threadId: 'thread-123',
+      commentId: 'comment-123',
+      replyId: 'reply-123',
+      owner: 'user-123',
     };
 
     // Action
-    const { threadId, commentId, replyId, owner } = new DeleteReply(payload);
+    const {
+      threadId, commentId, replyId, owner,
+    } = new DeleteReply(payload);
 
     // Assert
     expect(threadId).toEqual(payload.threadId);

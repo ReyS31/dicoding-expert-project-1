@@ -1,34 +1,32 @@
-const CommentRepository = require("../../../Domains/comments/CommentRepository");
-const ReplyRepository = require("../../../Domains/replies/ReplyRepository");
-const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
-const Thread = require("../../../Domains/threads/entities/Thread");
-const Comment = require("../../../Domains/comments/entities/Comment");
-const Reply = require("../../../Domains/replies/entities/Reply");
-const GetThreadUseCase = require("../GetThreadUseCase");
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
+const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const Thread = require('../../../Domains/threads/entities/Thread');
+const GetThreadUseCase = require('../GetThreadUseCase');
 
-describe("GetThreadUseCase", () => {
+describe('GetThreadUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
-  it("should orchestrating the get thread action correctly with comment", async () => {
+  it('should orchestrating the get thread action correctly with comment', async () => {
     // Arrange
     const payload = {
       date: new Date().toISOString(),
-      username: "udin",
-      content: "content",
+      username: 'udin',
+      content: 'content',
     };
-    const useCasePayload = "thread-123";
+    const useCasePayload = 'thread-123';
 
     const mockThread = new Thread({
-      id: "thread-123",
-      title: "title",
-      body: "body",
+      id: 'thread-123',
+      title: 'title',
+      body: 'body',
       date: payload.date,
       username: payload.username,
     });
 
     const mockComment = {
-      id: "comment-123",
+      id: 'comment-123',
       username: payload.username,
       content: payload.content,
       date: payload.date,
@@ -36,8 +34,8 @@ describe("GetThreadUseCase", () => {
     };
 
     const mockReply = {
-      id: "reply-123",
-      comment_id: "comment-123",
+      id: 'reply-123',
+      comment_id: 'comment-123',
       username: payload.username,
       content: payload.content,
       date: payload.date,
@@ -72,22 +70,22 @@ describe("GetThreadUseCase", () => {
 
     // Assert
     expect(threads).toEqual({
-      id: "thread-123",
-      title: "title",
-      body: "body",
+      id: 'thread-123',
+      title: 'title',
+      body: 'body',
       date: payload.date,
       username: payload.username,
       comments: [
         {
-          id: "comment-123",
+          id: 'comment-123',
           username: payload.username,
           content: payload.content,
           date: payload.date,
           replies: [
             {
-              id: "reply-123",
+              id: 'reply-123',
               username: payload.username,
-              content: "**balasan telah dihapus**",
+              content: '**balasan telah dihapus**',
               date: payload.date,
             },
           ],
@@ -97,22 +95,22 @@ describe("GetThreadUseCase", () => {
 
     expect(mockThreadRepository.getById).toBeCalledWith(useCasePayload);
     expect(mockCommentRepository.getByThreadId).toBeCalledWith(useCasePayload);
-    expect(mockReplyRepository.getByCommentIds).toBeCalledWith(["comment-123"]);
+    expect(mockReplyRepository.getByCommentIds).toBeCalledWith(['comment-123']);
   });
 
-  it("should orchestrating the get thread action correctly without comment", async () => {
+  it('should orchestrating the get thread action correctly without comment', async () => {
     // Arrange
     const payload = {
       date: new Date().toISOString(),
-      username: "udin",
-      content: "content",
+      username: 'udin',
+      content: 'content',
     };
-    const useCasePayload = "thread-123";
+    const useCasePayload = 'thread-123';
 
     const mockThread = new Thread({
-      id: "thread-123",
-      title: "title",
-      body: "body",
+      id: 'thread-123',
+      title: 'title',
+      body: 'body',
       date: payload.date,
       username: payload.username,
     });
@@ -142,9 +140,9 @@ describe("GetThreadUseCase", () => {
 
     // Assert
     expect(threads).toEqual({
-      id: "thread-123",
-      title: "title",
-      body: "body",
+      id: 'thread-123',
+      title: 'title',
+      body: 'body',
       date: payload.date,
       username: payload.username,
       comments: [],

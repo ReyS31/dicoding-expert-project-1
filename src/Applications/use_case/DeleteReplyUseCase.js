@@ -1,4 +1,4 @@
-const DeleteReply = require("../../Domains/replies/entities/DeleteReply");
+const DeleteReply = require('../../Domains/replies/entities/DeleteReply');
 
 class DeleteReplyUseCase {
   constructor({ threadRepository, commentRepository, replyRepository }) {
@@ -14,13 +14,13 @@ class DeleteReplyUseCase {
     await this._replyRepository.verifyReplyExists(useCasePayload.replyId);
     await this._replyRepository.verifyReplyOwner(
       useCasePayload.replyId,
-      useCasePayload.owner
+      useCasePayload.owner,
     );
-    return await this._replyRepository.deleteReply(useCasePayload);
+    return this._replyRepository.deleteReply(useCasePayload);
   }
 
   _validatePayload = (payload) => {
-    new DeleteReply(payload);
+    DeleteReply(payload);
   };
 }
 

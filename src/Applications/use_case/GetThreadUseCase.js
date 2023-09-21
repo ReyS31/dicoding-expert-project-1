@@ -1,5 +1,5 @@
-const Comment = require("../../Domains/comments/entities/Comment");
-const Reply = require("../../Domains/replies/entities/Reply");
+const Comment = require('../../Domains/comments/entities/Comment');
+const Reply = require('../../Domains/replies/entities/Reply');
 
 class GetThreadUseCase {
   constructor({ threadRepository, commentRepository, replyRepository }) {
@@ -11,29 +11,29 @@ class GetThreadUseCase {
   async execute(useCasePayload) {
     const thread = await this._threadRepository.getById(useCasePayload);
 
-    //#region GetComments
+    // #region GetComments
     const commentsRaw = await this._commentRepository.getByThreadId(
-      useCasePayload
+      useCasePayload,
     );
     const comments = commentsRaw.map((c) => new Comment(c));
-    //#endregion
+    // #endregion
 
-    //#region GetReplies
+    // #region GetReplies
     if (comments.length > 0) {
       // get all commentId form comments
       const commentIds = comments.map((c) => c.id);
       const repliesRaw = await this._replyRepository.getByCommentIds(
-        commentIds
+        commentIds,
       );
 
       comments.map(
-        (c) =>
-          (c.replies = repliesRaw
-            .filter((r) => r.comment_id === c.id)
-            .map((r) => new Reply(r)))
+        // eslint-disable-next-line no-return-assign, no-param-reassign
+        (c) => (c.replies = repliesRaw
+          .filter((r) => r.comment_id === c.id)
+          .map((r) => new Reply(r))),
       );
     }
-    //#endregion
+    // #endregion
 
     return { ...thread, comments };
   }
