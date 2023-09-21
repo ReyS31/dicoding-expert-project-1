@@ -1,7 +1,5 @@
-const AuthenticationTokenManager = require("../../../../Applications/security/AuthenticationTokenManager");
-const AddCommentUseCase = require("../../../../Applications/use_case/AddCommentUseCase");
-const DeleteCommentUseCase = require("../../../../Applications/use_case/DeleteCommentUseCase");
-const AuthenticationError = require("../../../../Commons/exceptions/AuthenticationError");
+const AddCommentUseCase = require('../../../../Applications/use_case/AddCommentUseCase');
+const DeleteCommentUseCase = require('../../../../Applications/use_case/DeleteCommentUseCase');
 
 class CommentsHandler {
   constructor(container) {
@@ -11,29 +9,13 @@ class CommentsHandler {
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
 
-  async getUserIdbyAccessToken(authorization) {
-    const _authenticationTokenManager = this._container.getInstance(
-      AuthenticationTokenManager.name
-    );
-    if (authorization === undefined) {
-      throw new AuthenticationError("Missing authentication");
-    }
-
-    const accessToken = authorization.split(" ")[1];
-
-    const { id } = await _authenticationTokenManager.decodePayload(accessToken);
-
-    return id;
-  }
-
   async postCommentHandler(request, h) {
     const { threadId } = request.params;
-    const owner = await this.getUserIdbyAccessToken(
-      request.headers.authorization
-    );
+
+    const { id: owner } = request.auth.credentials;
 
     const addCommentUseCase = this._container.getInstance(
-      AddCommentUseCase.name
+      AddCommentUseCase.name,
     );
 
     const addedComment = await addCommentUseCase.execute({
@@ -43,7 +25,7 @@ class CommentsHandler {
     });
 
     const response = h.response({
-      status: "success",
+      status: 'success',
       data: {
         addedComment,
       },
@@ -54,12 +36,11 @@ class CommentsHandler {
 
   async deleteCommentHandler(request, h) {
     const { threadId, commentId } = request.params;
-    const owner = await this.getUserIdbyAccessToken(
-      request.headers.authorization
-    );
+
+    const { id: owner } = request.auth.credentials;
 
     const deleteCommentUseCase = this._container.getInstance(
-      DeleteCommentUseCase.name
+      DeleteCommentUseCase.name,
     );
 
     await deleteCommentUseCase.execute({
@@ -69,7 +50,7 @@ class CommentsHandler {
     });
 
     const response = h.response({
-      status: "success",
+      status: 'success',
     });
     return response;
   }

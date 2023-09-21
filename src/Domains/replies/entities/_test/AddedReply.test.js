@@ -1,20 +1,20 @@
-const AddedReply = require("../AddedReply");
+const AddedReply = require('../AddedReply');
 
-describe("a AddedReply entities", () => {
-  it("should throw error when payload did not contain needed property", () => {
+describe('a AddedReply entities', () => {
+  it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
-      id: "reply-123",
-      content: "abc",
+      id: 'reply-123',
+      content: 'abc',
     };
 
     // Action and Assert
     expect(() => new AddedReply(payload)).toThrowError(
-      "ADDED_REPLY.NOT_CONTAIN_NEEDED_PROPERTY"
+      'ADDED_REPLY.NOT_CONTAIN_NEEDED_PROPERTY',
     );
   });
 
-  it("should throw error when payload did not meet data type specification", () => {
+  it('should throw error when payload did not meet data type specification', () => {
     // Arrange
     const payload = {
       id: 123,
@@ -24,16 +24,16 @@ describe("a AddedReply entities", () => {
 
     // Action and Assert
     expect(() => new AddedReply(payload)).toThrowError(
-      "ADDED_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION"
+      'ADDED_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION',
     );
   });
 
-  it("should create AddedReply object correctly", () => {
+  it('should create AddedReply object correctly', () => {
     // Arrange
     const payload = {
-      id: "reply-123",
-      content: "dicoding",
-      owner: "user-123",
+      id: 'reply-123',
+      content: 'dicoding',
+      owner: 'user-123',
     };
 
     // Action

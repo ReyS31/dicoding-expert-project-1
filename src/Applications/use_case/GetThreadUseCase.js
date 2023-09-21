@@ -1,3 +1,6 @@
+const Comment = require('../../Domains/comments/entities/Comment');
+const Reply = require('../../Domains/replies/entities/Reply');
+
 class GetThreadUseCase {
   constructor({ threadRepository, commentRepository, replyRepository }) {
     this._threadRepository = threadRepository;
@@ -6,23 +9,33 @@ class GetThreadUseCase {
   }
 
   async execute(useCasePayload) {
-    const [data, commentsRaw] = await Promise.all([
-      this._threadRepository.getById(useCasePayload),
-      this._commentRepository.getByThreadId(useCasePayload),
-    ]);
-    const comments = await this.fetchReplies(commentsRaw);
-    return { ...data, comments };
-  }
+    const thread = await this._threadRepository.getById(useCasePayload);
 
-  async fetchReplies(commentsRaw) {
-    const comments = [];
-    for (let index = 0; index < commentsRaw.length; index++) {
-      const element = new Comment(commentsRaw[index]);
-      element.replies = await this._replyRepository.getByCommentId(element.id);
-      comments.push(element);
+    // #region GetComments
+    const commentsRaw = await this._commentRepository.getByThreadId(
+      useCasePayload,
+    );
+    const comments = commentsRaw.map((c) => new Comment(c));
+    // #endregion
+
+    // #region GetReplies
+    if (comments.length > 0) {
+      // get all commentId form comments
+      const commentIds = comments.map((c) => c.id);
+      const repliesRaw = await this._replyRepository.getByCommentIds(
+        commentIds,
+      );
+
+      comments.map(
+        // eslint-disable-next-line no-return-assign, no-param-reassign
+        (c) => (c.replies = repliesRaw
+          .filter((r) => r.comment_id === c.id)
+          .map((r) => new Reply(r))),
+      );
     }
+    // #endregion
 
-    return comments;
+    return { ...thread, comments };
   }
 }
 
