@@ -13,7 +13,8 @@ class AddCommentUseCase {
   }
 
   _validatePayload = (payload) => {
-    AddComment(payload);
+    // eslint-disable-next-line no-new
+    new AddComment(payload);
   };
 }
 

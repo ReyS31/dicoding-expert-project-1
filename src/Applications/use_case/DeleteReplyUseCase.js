@@ -20,7 +20,8 @@ class DeleteReplyUseCase {
   }
 
   _validatePayload = (payload) => {
-    DeleteReply(payload);
+    // eslint-disable-next-line no-new
+    new DeleteReply(payload);
   };
 }
 

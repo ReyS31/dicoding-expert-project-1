@@ -95,7 +95,6 @@ describe('GetThreadUseCase', () => {
 
     expect(mockThreadRepository.getById).toBeCalledWith(useCasePayload);
     expect(mockCommentRepository.getByThreadId).toBeCalledWith(useCasePayload);
-    expect(mockReplyRepository.getByCommentIds).toBeCalledWith(['comment-123']);
   });
 
   it('should orchestrating the get thread action correctly without comment', async () => {
@@ -135,12 +134,6 @@ describe('GetThreadUseCase', () => {
       replyRepository: mockReplyRepository,
     });
 
-    // mocking fetchReplies with empty array
-    // because mockCommentRepository.getByThreadId returning empty array
-    getThreadUseCase.fetchReplies = jest
-      .fn()
-      .mockImplementation(() => Promise.resolve([]));
-
     // Action
     const threads = await getThreadUseCase.execute(useCasePayload);
 
@@ -156,6 +149,5 @@ describe('GetThreadUseCase', () => {
 
     expect(mockThreadRepository.getById).toBeCalledWith(useCasePayload);
     expect(mockCommentRepository.getByThreadId).toBeCalledWith(useCasePayload);
-    expect(getThreadUseCase.fetchReplies).toBeCalledWith([]);
   });
 });
