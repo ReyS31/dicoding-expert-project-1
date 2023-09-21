@@ -310,7 +310,7 @@ container.register([
           internal: CommentRepository.name,
         },
         {
-          name: 'replyRepository',
+          name: 'replyRepository,
           internal: ReplyRepository.name,
         },
       ],
