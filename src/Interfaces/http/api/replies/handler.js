@@ -9,7 +9,6 @@ class RepliesHandler {
     this.deleteReplyHandler = this.deleteReplyHandler.bind(this);
   }
 
-
   async postReplyHandler(request, h) {
     const { threadId, commentId } = request.params;
 

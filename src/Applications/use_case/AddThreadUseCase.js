@@ -11,7 +11,8 @@ class AddThreadUseCase {
   }
 
   _validatePayload = (payload) => {
-    AddThread(payload);
+    // eslint-disable-next-line no-new
+    new AddThread(payload);
   };
 }
 

@@ -15,7 +15,8 @@ class AddReplyUseCase {
   }
 
   _validatePayload = (payload) => {
-    AddReply(payload);
+    // eslint-disable-next-line no-new
+    new AddReply(payload);
   };
 }
 

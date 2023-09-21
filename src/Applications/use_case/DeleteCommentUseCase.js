@@ -18,7 +18,8 @@ class DeleteCommentUseCase {
   }
 
   _validatePayload = (payload) => {
-    DeleteComment(payload);
+    // eslint-disable-next-line no-new
+    new DeleteComment(payload);
   };
 }
 
