@@ -24,6 +24,7 @@ describe('a Comment entities', () => {
       content: {},
       date: 123,
       is_delete: 'q1',
+      like_count: '',
     };
 
     // Action and Assert
@@ -40,12 +41,15 @@ describe('a Comment entities', () => {
       content: 'bala',
       date: new Date().toISOString(),
       is_delete: false,
+      like_count: 0,
     };
 
     // Action
     const {
-      id, content, username, date, replies,
-    } = new Comment(payload);
+      id, content, username, date, replies, likeCount,
+    } = new Comment(
+      payload,
+    );
 
     // Assert
     expect(id).toEqual(payload.id);
@@ -53,6 +57,7 @@ describe('a Comment entities', () => {
     expect(content).toEqual(payload.content);
     expect(date).toEqual(payload.date);
     expect(replies).toStrictEqual([]);
+    expect(likeCount).toStrictEqual(payload.like_count);
   });
 
   it('should create deleted Comment object correctly', () => {
@@ -63,12 +68,15 @@ describe('a Comment entities', () => {
       content: 'bala',
       date: new Date().toISOString(),
       is_delete: true,
+      like_count: 0,
     };
 
     // Action
     const {
-      id, content, username, date, replies,
-    } = new Comment(payload);
+      id, content, username, date, replies, likeCount,
+    } = new Comment(
+      payload,
+    );
 
     // Assert
     expect(id).toEqual(payload.id);
@@ -76,5 +84,6 @@ describe('a Comment entities', () => {
     expect(content).toEqual('**komentar telah dihapus**');
     expect(date).toEqual(payload.date);
     expect(replies).toStrictEqual([]);
+    expect(likeCount).toStrictEqual(payload.like_count);
   });
 });

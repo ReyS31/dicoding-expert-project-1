@@ -6,14 +6,9 @@ class AddThreadUseCase {
   }
 
   async execute(useCasePayload) {
-    this._validatePayload(useCasePayload);
-    return this._threadRepository.addThread(useCasePayload);
+    const addThread = new AddThread(useCasePayload);
+    return this._threadRepository.addThread(addThread);
   }
-
-  _validatePayload = (payload) => {
-    // eslint-disable-next-line no-new
-    new AddThread(payload);
-  };
 }
 
 module.exports = AddThreadUseCase;

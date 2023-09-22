@@ -8,21 +8,16 @@ class DeleteReplyUseCase {
   }
 
   async execute(useCasePayload) {
-    this._validatePayload(useCasePayload);
-    await this._threadRepository.verifyThreadExists(useCasePayload.threadId);
-    await this._commentRepository.verifyCommentExists(useCasePayload.commentId);
-    await this._replyRepository.verifyReplyExists(useCasePayload.replyId);
+    const deleteReply = new DeleteReply(useCasePayload);
+    await this._threadRepository.verifyThreadExists(deleteReply.threadId);
+    await this._commentRepository.verifyCommentExists(deleteReply.commentId);
+    await this._replyRepository.verifyReplyExists(deleteReply.replyId);
     await this._replyRepository.verifyReplyOwner(
-      useCasePayload.replyId,
-      useCasePayload.owner,
+      deleteReply.replyId,
+      deleteReply.owner,
     );
-    return this._replyRepository.deleteReply(useCasePayload);
+    return this._replyRepository.deleteReply(deleteReply);
   }
-
-  _validatePayload = (payload) => {
-    // eslint-disable-next-line no-new
-    new DeleteReply(payload);
-  };
 }
 
 module.exports = DeleteReplyUseCase;

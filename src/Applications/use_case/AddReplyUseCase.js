@@ -8,16 +8,11 @@ class AddReplyUseCase {
   }
 
   async execute(useCasePayload) {
-    this._validatePayload(useCasePayload);
-    await this._threadRepository.verifyThreadExists(useCasePayload.threadId);
-    await this._commentRepository.verifyCommentExists(useCasePayload.commentId);
-    return this._replyRepository.addReply(useCasePayload);
+    const addReply = new AddReply(useCasePayload);
+    await this._threadRepository.verifyThreadExists(addReply.threadId);
+    await this._commentRepository.verifyCommentExists(addReply.commentId);
+    return this._replyRepository.addReply(addReply);
   }
-
-  _validatePayload = (payload) => {
-    // eslint-disable-next-line no-new
-    new AddReply(payload);
-  };
 }
 
 module.exports = AddReplyUseCase;

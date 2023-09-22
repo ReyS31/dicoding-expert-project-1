@@ -9,15 +9,10 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
-const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 
 describe('CommentRepository postgres', () => {
-  let replyRepository;
-
   beforeAll(async () => {
-    const fakeIdGenerator = () => '123';
-    replyRepository = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
     await UsersTableTestHelper.addUser({});
     await ThreadsTableTestHelper.addThread({});
   });
@@ -44,7 +39,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       // Action
@@ -69,7 +63,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       // Action
@@ -87,7 +80,7 @@ describe('CommentRepository postgres', () => {
   });
 
   describe('deleteComment function', () => {
-    it('should throw AuthoziationError if wrong comment owner', async () => {
+    it('should throw InvariantError if wrong comment owner', async () => {
       // Arrange
       const forbiddenUser = { id: 'user-456', username: 'bocil_hengker' };
 
@@ -101,7 +94,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       await UsersTableTestHelper.addUser(forbiddenUser);
@@ -128,7 +120,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       await CommentsTableTestHelper.addComment({});
@@ -154,7 +145,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       // Action & Assert
@@ -169,7 +159,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       await CommentsTableTestHelper.addComment({});
@@ -188,7 +177,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
       await CommentsTableTestHelper.addComment({});
 
@@ -204,7 +192,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       await CommentsTableTestHelper.addComment({});
@@ -233,7 +220,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       // Action
@@ -260,7 +246,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       await commentRepository.addComment(addComment);
@@ -290,7 +275,6 @@ describe('CommentRepository postgres', () => {
       const commentRepository = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        replyRepository,
       );
 
       await commentRepository.addComment(addComment);
@@ -302,6 +286,94 @@ describe('CommentRepository postgres', () => {
       // Assert
       expect(data).toHaveLength(2);
       verifyComments(data, payload);
+    });
+  });
+
+  describe('addLike function', () => {
+    it('should throw InvariantError if data not match', async () => {
+      // Arrange
+      const fakeIdGenerator = () => '123';
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+      );
+      await CommentsTableTestHelper.addComment({});
+
+      // Action & Assert
+      await expect(commentRepository.addLike('comment-234')).rejects.toThrow(
+        InvariantError,
+      );
+    });
+
+    it('should increase like_count to comment', async () => {
+      // Arrange
+      const payload = {
+        threadId: 'thread-123',
+        content: 'dicoding',
+        owner: 'user-123',
+        likeCount: 1,
+      };
+      const fakeIdGenerator = () => '123';
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+      );
+      await CommentsTableTestHelper.addComment({});
+
+      // Action
+      await commentRepository.addLike('comment-123');
+
+      // Assert
+      const comments = await CommentsTableTestHelper.findById('comment-123');
+      expect(comments).toHaveLength(1);
+      expect(comments[0].thread_id).toBe(payload.threadId);
+      expect(comments[0].content).toBe(payload.content);
+      expect(comments[0].owner).toBe(payload.owner);
+      expect(comments[0].like_count).toBe(payload.likeCount);
+    });
+  });
+
+  describe('removeLike function', () => {
+    it('should throw InvariantError if data not match', async () => {
+      // Arrange
+      const fakeIdGenerator = () => '123';
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+      );
+      await CommentsTableTestHelper.addComment({});
+
+      // Action & Assert
+      await expect(commentRepository.removeLike('comment-234')).rejects.toThrow(
+        InvariantError,
+      );
+    });
+
+    it('should decrease like_count to comment', async () => {
+      // Arrange
+      const payload = {
+        threadId: 'thread-123',
+        content: 'dicoding',
+        owner: 'user-123',
+        likeCount: 0,
+      };
+      const fakeIdGenerator = () => '123';
+      const commentRepository = new CommentRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+      );
+      await CommentsTableTestHelper.addComment({ like_count: 1 });
+
+      // Action
+      await commentRepository.removeLike('comment-123');
+
+      // Assert
+      const comments = await CommentsTableTestHelper.findById('comment-123');
+      expect(comments).toHaveLength(1);
+      expect(comments[0].thread_id).toBe(payload.threadId);
+      expect(comments[0].content).toBe(payload.content);
+      expect(comments[0].owner).toBe(payload.owner);
+      expect(comments[0].like_count).toBe(payload.likeCount);
     });
   });
 });
