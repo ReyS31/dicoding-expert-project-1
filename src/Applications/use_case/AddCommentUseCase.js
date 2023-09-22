@@ -7,15 +7,10 @@ class AddCommentUseCase {
   }
 
   async execute(useCasePayload) {
-    this._validatePayload(useCasePayload);
-    await this._threadRepository.verifyThreadExists(useCasePayload.threadId);
-    return this._commentRepository.addComment(useCasePayload);
+    const addComment = new AddComment(useCasePayload);
+    await this._threadRepository.verifyThreadExists(addComment.threadId);
+    return this._commentRepository.addComment(addComment);
   }
-
-  _validatePayload = (payload) => {
-    // eslint-disable-next-line no-new
-    new AddComment(payload);
-  };
 }
 
 module.exports = AddCommentUseCase;

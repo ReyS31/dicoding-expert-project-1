@@ -24,12 +24,12 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
 
-    return new AddedComment({ ...result.rows[0] });
+    return new AddedComment(result.rows[0]);
   }
 
   async getByThreadId(threadId) {
     const query = {
-      text: `SELECT cmt.id, cmt.content, cmt.date, usr.username, cmt.is_delete 
+      text: `SELECT cmt.id, cmt.content, cmt.date, usr.username, cmt.is_delete, cmt.like_count 
       FROM comments as cmt JOIN users as usr ON cmt.owner = usr.id 
       WHERE cmt.thread_id = $1 ORDER BY cmt.date ASC`,
       values: [threadId],
@@ -79,6 +79,50 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (!result.rowCount) {
       throw new AuthorizationError('ga boleh');
     }
+  }
+
+  async addLike(id) {
+    const likeCountQuery = {
+      text: 'SELECT like_count FROM comments WHERE id = $1',
+      values: [id],
+    };
+
+    const likeCountResult = await this._pool.query(likeCountQuery);
+
+    if (!likeCountResult.rowCount) {
+      throw new InvariantError('query error');
+    }
+
+    const { like_count: currentCount } = likeCountResult.rows[0];
+
+    const query = {
+      text: 'UPDATE comments SET like_count = $1 WHERE id = $2',
+      values: [currentCount + 1, id],
+    };
+
+    await this._pool.query(query);
+  }
+
+  async removeLike(id) {
+    const likeCountQuery = {
+      text: 'SELECT like_count FROM comments WHERE id = $1',
+      values: [id],
+    };
+
+    const likeCountResult = await this._pool.query(likeCountQuery);
+
+    if (!likeCountResult.rowCount) {
+      throw new InvariantError('query error');
+    }
+
+    const { like_count: currentCount } = likeCountResult.rows[0];
+
+    const query = {
+      text: 'UPDATE comments SET like_count = $1 WHERE id = $2',
+      values: [currentCount - 1, id],
+    };
+
+    await this._pool.query(query);
   }
 }
 

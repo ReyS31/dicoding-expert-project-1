@@ -53,7 +53,6 @@ describe('/thread endpoint', () => {
       password: 'rahasia',
       fullname: 'Udin Bala',
     });
-
     await UsersTableTestHelper.addUser({});
     await ThreadsTableTestHelper.addThread({});
   });

@@ -7,20 +7,15 @@ class DeleteCommentUseCase {
   }
 
   async execute(useCasePayload) {
-    this._validatePayload(useCasePayload);
-    await this._threadRepository.verifyThreadExists(useCasePayload.threadId);
-    await this._commentRepository.verifyCommentExists(useCasePayload.commentId);
+    const deleteComment = new DeleteComment(useCasePayload);
+    await this._threadRepository.verifyThreadExists(deleteComment.threadId);
+    await this._commentRepository.verifyCommentExists(deleteComment.commentId);
     await this._commentRepository.verifyCommentOwner(
-      useCasePayload.commentId,
-      useCasePayload.owner,
+      deleteComment.commentId,
+      deleteComment.owner,
     );
-    return this._commentRepository.deleteComment(useCasePayload);
+    return this._commentRepository.deleteComment(deleteComment);
   }
-
-  _validatePayload = (payload) => {
-    // eslint-disable-next-line no-new
-    new DeleteComment(payload);
-  };
 }
 
 module.exports = DeleteCommentUseCase;

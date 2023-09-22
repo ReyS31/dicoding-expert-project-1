@@ -9,11 +9,13 @@ const CommentsTableTestHelper = {
     content = 'dicoding',
     owner = 'user-123',
     date = new Date().toISOString(),
+    // eslint-disable-next-line camelcase
+    like_count = 0,
   }) {
     const query = {
-      text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5)',
+      text: 'INSERT INTO comments(id, thread_id, content, owner, date, like_count) VALUES($1, $2, $3, $4, $5, $6)',
       // eslint-disable-next-line camelcase
-      values: [id, thread_id, content, owner, date],
+      values: [id, thread_id, content, owner, date, like_count],
     };
 
     await pool.query(query);
