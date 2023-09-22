@@ -27,14 +27,16 @@ describe('LikeRepository postgres', () => {
   describe('verifyIsLikeExists function', () => {
     it('should return false if like not exists', async () => {
       // Arrange
+      const payload = {
+        userId: 'user-123',
+        commentId: 'comment-123',
+      };
+
       const fakeIdGenerator = () => '123';
       const likeRepository = new LikeRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
-      const isExists = await likeRepository.verifyIsLikeExists(
-        'user-123',
-        'comment-123',
-      );
+      const isExists = await likeRepository.verifyIsLikeExists(payload);
 
       // Assert
       expect(isExists).toBe(false);
@@ -42,15 +44,17 @@ describe('LikeRepository postgres', () => {
 
     it('should return true if like exists', async () => {
       // Arrange
+      const payload = {
+        userId: 'user-123',
+        commentId: 'comment-123',
+      };
+
       const fakeIdGenerator = () => '123';
       const likeRepository = new LikeRepositoryPostgres(pool, fakeIdGenerator);
       await LikesTableTestHelper.addLike({});
 
       // Action
-      const isExists = await likeRepository.verifyIsLikeExists(
-        'user-123',
-        'comment-123',
-      );
+      const isExists = await likeRepository.verifyIsLikeExists(payload);
 
       // Assert
       expect(isExists).toBe(true);
@@ -60,24 +64,34 @@ describe('LikeRepository postgres', () => {
   describe('likeComment function', () => {
     it('should throw InvariantError if data is invalid', async () => {
       // Arrange
+      const payload = {
+        userId: 'user-123',
+        commentId: 'comment-234',
+      };
+
       const fakeIdGenerator = () => '123';
       const likeRepository = new LikeRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action & Assert
-      await expect(
-        likeRepository.likeComment('user-123', 'comment-234'),
-      ).rejects.toThrow(InvariantError);
+      await expect(likeRepository.likeComment(payload)).rejects.toThrow(
+        InvariantError,
+      );
     });
 
     it('should not throw InvariantError if data is valid', async () => {
       // Arrange
+      const payload = {
+        userId: 'user-123',
+        commentId: 'comment-123',
+      };
+
       const fakeIdGenerator = () => '123';
       const likeRepository = new LikeRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action & Assert
-      await expect(
-        likeRepository.likeComment('user-123', 'comment-123'),
-      ).resolves.not.toThrow(InvariantError);
+      await expect(likeRepository.likeComment(payload)).resolves.not.toThrow(
+        InvariantError,
+      );
 
       // Assert
       const likes = await LikesTableTestHelper.findById('like-123');
@@ -91,23 +105,33 @@ describe('LikeRepository postgres', () => {
   describe('unlikeComment function', () => {
     it('should throw InvariantError if data not match', async () => {
       // Arrange
+      const payload = {
+        userId: 'user-123',
+        commentId: 'comment-123',
+      };
+
       const fakeIdGenerator = () => '123';
       const likeRepository = new LikeRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action & Assert
-      await expect(
-        likeRepository.unlikeComment('user-123', 'comment-123'),
-      ).rejects.toThrow(InvariantError);
+      await expect(likeRepository.unlikeComment(payload)).rejects.toThrow(
+        InvariantError,
+      );
     });
 
     it('should decrease like_count to comment', async () => {
       // Arrange
+      const payload = {
+        userId: 'user-123',
+        commentId: 'comment-123',
+      };
+
       const fakeIdGenerator = () => '123';
       const likeRepository = new LikeRepositoryPostgres(pool, fakeIdGenerator);
       await LikesTableTestHelper.addLike({});
 
       // Action
-      await likeRepository.unlikeComment('user-123', 'comment-123');
+      await likeRepository.unlikeComment(payload);
 
       // Assert
       const likes = await LikesTableTestHelper.findById('like-123');

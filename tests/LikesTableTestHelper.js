@@ -27,6 +27,16 @@ const CommentsTableTestHelper = {
     return result.rows;
   },
 
+  async findByCommentId(commentId) {
+    const query = {
+      text: 'SELECT * FROM user_like_comments WHERE comment_id = $1',
+      values: [commentId],
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
+  },
+
   async removeLike({
     id = 'like-123',
     userId = 'user-123',

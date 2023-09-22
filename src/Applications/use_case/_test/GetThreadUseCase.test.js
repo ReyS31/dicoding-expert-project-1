@@ -31,6 +31,7 @@ describe('GetThreadUseCase', () => {
       content: payload.content,
       date: payload.date,
       is_delete: false,
+      like_count: 1,
     };
 
     const mockReply = {
@@ -81,6 +82,7 @@ describe('GetThreadUseCase', () => {
           username: payload.username,
           content: payload.content,
           date: payload.date,
+          likeCount: 1,
           replies: [
             {
               id: 'reply-123',

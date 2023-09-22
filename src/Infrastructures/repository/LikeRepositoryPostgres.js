@@ -8,13 +8,14 @@ class LikeRepositoryPostgres extends LikeRepository {
     this._idGenerator = idGenerator;
   }
 
-  async likeComment(userId, commentId) {
+  async likeComment(payload) {
     try {
+      const { userId, commentId } = payload;
       const id = `like-${this._idGenerator()}`;
       const date = new Date().toISOString();
 
       const query = {
-        text: 'INSERT INTO user_like_comments VALUES($1,$2,$3,$4)',
+        text: 'INSERT INTO user_like_comments VALUES($1,$2,$3,$4) RETURNING id',
         values: [id, userId, commentId, date],
       };
 
@@ -24,7 +25,8 @@ class LikeRepositoryPostgres extends LikeRepository {
     }
   }
 
-  async unlikeComment(userId, commentId) {
+  async unlikeComment(payload) {
+    const { userId, commentId } = payload;
     const query = {
       text: 'DELETE FROM user_like_comments WHERE user_id = $1 AND comment_id = $2',
       values: [userId, commentId],
@@ -37,7 +39,8 @@ class LikeRepositoryPostgres extends LikeRepository {
     }
   }
 
-  async verifyIsLikeExists(userId, commentId) {
+  async verifyIsLikeExists(payload) {
+    const { userId, commentId } = payload;
     const query = {
       text: 'SELECT id FROM user_like_comments WHERE user_id = $1 AND comment_id = $2',
       values: [userId, commentId],

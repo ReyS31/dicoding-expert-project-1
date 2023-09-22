@@ -1,15 +1,15 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 class LikeRepository {
-  async verifyIsLikeExists(userId, commentId) {
+  async verifyIsLikeExists(payload) {
     throw new Error('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async likeComment(userId, commentId) {
+  async likeComment(payload) {
     throw new Error('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async unlikeComment(userId, commentId) {
+  async unlikeComment(payload) {
     throw new Error('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 }
